@@ -21,18 +21,19 @@ plot(x2, n2)
 % TODO: Try generating other kinds of random numbers.
 %       How about a 2D grid of random Gaussian values?
 
-figure
-noise3 = randn([3 1000]);
 
-dolphin = imread('dolphin.png'); % load image
+img = double(imread('dolphin.png')); % load image
 % multiplying a bunch of random numbers generated from a Gaussian or Normal 
 % distribution changes their effective standard deviation, 
 % i.e. how far apart the values are spread.
-sigma = 1;
+sigma = 25;
 % Generates the noise the same size as an image
 % No layers mixing, dolphin image determines the size of a noise image only
-noisy_pic = randn(size(dolphin)).*sigma;
+noisy_pic = randn(size(img)) .* sigma;
+figure
 imshow(noisy_pic)
 
 % this will add a noise to an image
-output = noisy_pic + doplhin
+output = img + noisy_pic;
+figure
+imshow(output)
