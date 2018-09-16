@@ -2,6 +2,7 @@ close all
 clear
 home
 
+
 % Test code:
 s = [-1 0 0 1 1 1 0 -1 -1 0 1 0 0 -1];
 t = [1 1 0];
