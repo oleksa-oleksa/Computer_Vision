@@ -30,3 +30,69 @@ def affine_transformation(img, matrix):
     vecs = vecs.T.reshape(m[0], m[1], -1)
     # apply bicubic interpolation
     return bicubic_interpolation(img, vecs)
+
+
+def interpolated_intensity(x, y, alpha):
+    xs = [1, x, x**2, x**3]
+    ys = [1, y, y**2, y**3]
+
+    return sum(alpha[i*4+j]*xs[i]*ys[j] for i in range(4) for j in range(4))
+
+
+def bicubic_interpolation(img, indicies):
+    dx_img = derive_x(img)
+    dy_img = derive_y(img)
+    dxy_img = derive_x(dy_img)
+    # your code here
+    o_height, o_width = img.shape
+    height, width, _ = indicies.shape
+    res = np.zeros((height, width), dtype=np.float)
+    
+    A_inv = np.array([
+        [ 1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+        [ 0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+        [-3,  3,  0,  0, -2, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+        [ 2, -2,  0,  0,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+        [ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0],
+        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0],
+        [ 0,  0,  0,  0,  0,  0,  0,  0, -3,  3,  0,  0, -2, -1,  0,  0],
+        [ 0,  0,  0,  0,  0,  0,  0,  0,  2, -2,  0,  0,  1,  1,  0,  0],
+        [-3,  0,  3,  0,  0,  0,  0,  0, -2,  0, -1,  0,  0,  0,  0,  0],
+        [ 0,  0,  0,  0, -3,  0,  3,  0,  0,  0,  0,  0, -2,  0, -1,  0],
+        [ 9, -9, -9,  9,  6,  3, -6, -3,  6, -6,  3, -3,  4,  2,  2,  1],
+        [-6,  6,  6, -6, -3, -3,  3,  3, -4,  4, -2,  2, -2, -2, -1, -1],
+        [ 2,  0, -2,  0,  0,  0,  0,  0,  1,  0,  1,  0,  0,  0,  0,  0],
+        [ 0,  0,  0,  0,  2,  0, -2,  0,  0,  0,  0,  0,  1,  0,  1,  0],
+        [-6,  6,  6, -6, -4, -2,  4,  2, -3,  3, -3,  3, -2, -1, -2, -1],
+        [ 4, -4, -4,  4,  2,  2, -2, -2,  2, -2,  2, -2,  1,  1,  1,  1]
+    ])
+
+    fs = np.floor(indicies).astype(np.int)
+    cs = np.ceil(indicies).astype(np.int)
+ 
+    for y in range(height):
+        for x in range(width):
+            py, px = indicies[y, x]
+            fy, fx = fs[y, x]
+            cy, cx = cs[y, x]
+
+            if fy < 0 or fy >= o_height or fx < 0 or fx >= o_width \
+                or cy < 0 or cy >= o_height or cx < 0 or cx >= o_height:
+                continue                    
+
+#             x = [ f (0,0) f (1,0) f (0,1) f (1,1) 
+#                      fx (0,0) fx (1,0) fx (0,1) fx (1,1)
+#                      fy (0,0) fy (1,0) fy (0,1) fy (1,1) 
+#                      fxy (0,0) fxy (1,0) fxy (0,1) fxy (1,1) ]T
+        
+            coeffs = np.array([
+                img[fy, fx], img[cy, fx], img[fy, cx], img[cy, cx],
+                dx_img[fy, fx], dx_img[cy, fx], dx_img[fy, cx], dx_img[cy, cx],
+                dy_img[fy, fx], dy_img[cy, fx], dy_img[fy, cx], dy_img[cy, cx],
+                dxy_img[fy, fx], dxy_img[cy, fx], dxy_img[fy, cx], dxy_img[cy, cx]             
+            ])
+        
+            alpha = A_inv@coeffs
+            res[y, x] = interpolated_intensity(px-fx, py-fy, alpha)
+
+    return res
