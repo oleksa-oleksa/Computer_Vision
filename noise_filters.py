@@ -1,3 +1,10 @@
+import scipy.signal
+
+basic_kernel = np.ones((3, 3))
+basic_kernel_size = np.size(basic_kernel)
+lower_y = 1
+lower_x = 1
+
 #---- helper functions ----
 def get_filter_frame(img, position_x, position_y):
     # convolution requires values from pixels outside of the image boundaries
