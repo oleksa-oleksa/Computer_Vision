@@ -42,6 +42,12 @@ def arithmetic_mean(img):
 
 
  def geometric_mean(img):
-    res = np.copy(img)
-    upper_x = res.shape[1]-1
-    upper_y = res.shape[0]-1
+    result = np.copy(img)
+    upper_x = result.shape[1]-1
+    upper_y = result.shape[0]-1
+
+    for row in range(lower_y, upper_y):
+        for column in range(lower_x, upper_x):
+            img_frame = get_filter_frame(img, row, column)
+            result[row, column] = np.sqrt(np.prod(img_frame))
+    return result / np.max(result)
