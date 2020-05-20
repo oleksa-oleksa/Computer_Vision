@@ -40,3 +40,9 @@ def arithmetic_mean(img):
     # Numpy is not a solution because it works only with 1D array (object too deep for desired array)
     #return np.convolve(img[:,:], kernel, mode="same")
     return scipy.signal.convolve2d(img[:,:], kernel, mode='same')
+
+
+ def geometric_mean(img):
+    res = np.copy(img)
+    upper_x = res.shape[1]-1
+    upper_y = res.shape[0]-1
