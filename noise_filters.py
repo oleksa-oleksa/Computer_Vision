@@ -42,12 +42,41 @@ def arithmetic_mean(img):
 
 
  def geometric_mean(img):
-    result = np.copy(img)
+    result = np.zeros_like(img)
     upper_x = result.shape[1]-1
     upper_y = result.shape[0]-1
 
     for row in range(lower_y, upper_y):
         for column in range(lower_x, upper_x):
             img_frame = get_filter_frame(img, row, column)
-            result[row, column] = np.sqrt(np.prod(img_frame))
-    return result / np.max(result)
+            result[row, column] = np.prod(img_frame).astype(np.float) ** (1 / float(basic_kernel_size))
+    return result
+
+
+ def contraharmoic_mean(img, q=None):
+    pepper_noise = 0.8
+    salt_noise = -0.8
+    # Your need to select the q yourself
+    # Q is the order of the filter.
+    # Positive values of Q eliminate pepper noise. Negative values of Q eliminate salt noise.
+    # It cannot eliminate both simultaneously.
+    result = np.zeros_like(img)
+    upper_x = result.shape[1]-1
+    upper_y = result.shape[0]-1
+    
+    if q is None or q == 0:
+        q = pepper_noise
+    
+
+    for row in range(lower_y, upper_y):
+        for column in range(lower_x, upper_x):
+            img_frame = get_filter_frame(img, row, column)
+            nominator = np.sum(img_frame ** (q + 1)) / float(basic_kernel_size)
+            denominator = np.sum(img_frame ** q) / float(basic_kernel_size)
+            
+            # RuntimeWarning: divide by zero encountered in true_divide -> set demominator manually to a very small value
+            if denominator == 0:
+                denominator = 0.0001
+                
+            result[row, column] = nominator / denominator
+    return result
