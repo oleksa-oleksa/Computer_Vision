@@ -14,20 +14,28 @@ def sharp_laplacian(img):
      [-1,-1,-1]
     ])
     
-    return scipy.signal.convolve2d(img[:,:], kernel, mode='same', boundary='symm')
+    lap_derivative = scipy.signal.convolve2d(img[:,:], kernel, mode='same', boundary='symm')
+    return img + lap_derivative
 
 
 def unsharp_masking(img):
-    """Perform sharpening by unsharp masking"""
-    # your code here
-    # because of the initial image was corrupted with noise and blur, 
-    # we will use inly blury image
-    img = adaptive_median(img)
+    """Perform sharpening by unsharp masking
+    Recall our definition of sharpness (”more blur = less sharp”)
+    A simple method of adding the detail that might have been lost due to blur is:
+    Blur the original
+    Subtract the blurred image from the original 
+    Add the result to the original """
     
-    laplacian = sharp_laplacian(img)
+    # Blur the original
+    blurred = gaussian(img , 1.6)
     
-    laplacian = (laplacian - np.min(laplacian))
-    laplacian = laplacian/np.max(laplacian)
-    sharped = img + laplacian
-    sharped = sharped - np.min(sharped)
-    sharped = sharped * np.max(sharped)
+    # Subtract the blurred image from the original
+    unsharped = img - blurred
+    # normalise
+    #unsharped = unsharped/np.max(unsharped)
+    
+    # Add the result to the original
+    amplifier = 4
+    sharped = img + amplifier*unsharped
+ 
+    return np.clip(sharped, 0,1)
