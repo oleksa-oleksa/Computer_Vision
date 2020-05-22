@@ -131,3 +131,37 @@ def arithmetic_mean(img):
                     break
                 
     return np.clip(result, 0, 1)
+
+def adaptive_mean(img):
+    result = np.zeros_like(img)
+    upper_x = result.shape[1]-1
+    upper_y = result.shape[0]-1
+    # Operate on a local and based on
+    # 1. The value of the noisy image at pixel (x,y) 
+    # 2. The variance of the noise
+    # 3. The local mean of the pixels in the local region
+    # 4. The local variance
+    
+    var = np.var(img)
+    
+    for row in range(lower_y, upper_y):
+        for column in range(lower_x, upper_x):            
+            img_frame = get_filter_frame(img, row, column)
+            local_var = np.var(img_frame)
+            local_mean = np.mean(img_frame)
+            # the value of noisy image is accessible in the loop
+
+            # zero-noise case, copy-paste the original pixel into result
+            if var == 0:
+                result[row, column] = img[row, column]
+            # if the local variance is high relative to global variance, the filter should return the value close
+            # to g(x, y). A high local variance typically is accossiated with edges and those should be preserved
+            if local_var > var:
+                result[row-1 : row+2, column-1 : column+2] = img_frame - ((var**2 / local_var**2) * (img_frame - local_mean))
+            # it the two variances are equal, we want a filter to return the arithmetic mean value of S(x, y)
+            # this condition occurs when the local area has the same properties as the overall image, 
+            # and the local noise is to be reduced simply by averaging
+            if local_var == var:
+                result[row, column] = local_mean
+            
+    return np.clip(result, 0, 1)
