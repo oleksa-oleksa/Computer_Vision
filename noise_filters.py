@@ -80,3 +80,54 @@ def arithmetic_mean(img):
                 
             result[row, column] = nominator / denominator
     return result
+
+ def adaptive_median(img):
+    result = np.zeros_like(img)
+    upper_x = result.shape[1]-1
+    upper_y = result.shape[0]-1
+    
+    # maximum allowed size of Sxy
+    Smax = 17
+    Sxy = basic_kernel_size # 9 by default, set by global variable
+    
+    for row in range(lower_y, upper_y):
+        for column in range(lower_x, upper_x):            
+            while (True):
+                img_frame = get_filter_frame(img, row, column)
+                
+                # median of grey levels in Sxy
+                Zmed = np.median(img_frame)
+                Zmin = np.min(img_frame)
+                Zmax = np.max(img_frame)
+                # grey level at coordinates (x, y)
+                Zxy = img[row,column]
+
+                A1 = Zmed - Zmin
+                A2 = Zmed - Zmax
+
+                if (A1 > 0 and A2 < 0):
+                    # If A1 > 0 and A2 < 0, Go to stage B
+                    B1 = Zxy - Zmin
+                    B2 = Zxy - Zmax
+                    
+                    # stage B
+                    if (B1 > 0 and B2 < 0):
+                        # If B1 > 0 and B2 < 0, output zxy
+                        result[row,column] = Zxy
+                        break
+                    else:
+                        # Else output zmed
+                        result[row,column] = Zmed
+                        break
+                
+                # else continue stage A              
+                # if window size ≤ Smax repeat stage A
+                elif (Sxy < Smax):
+                    # increase the window size
+                    Sxy = Sxy + 4 # 9- 13 - 17 - 21
+                else:
+                    # Else output zmed
+                    result[row, column] = Zmed
+                    break
+                
+    return np.clip(result, 0, 1)
