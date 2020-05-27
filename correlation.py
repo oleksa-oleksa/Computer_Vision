@@ -5,7 +5,7 @@ def correlation(a, b):
 	a_2 = np.sum(a**2)
 	b_2 = np.sum(b**2)
 	dem = np.sqrt(a_2 * b_2)
-	return np.sum(nom)/np.sum(dem)
+	return np.sum(nom)/dem
 
 
 sig1 = np.array([1, 2, -3])
