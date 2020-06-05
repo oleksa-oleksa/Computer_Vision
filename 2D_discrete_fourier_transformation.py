@@ -1,4 +1,4 @@
-# my DFT Matrix code from assignment 6
+# 2D Discrete Fourier Transformation with Matrix Multiplication
 def dft_matrix(n):
     omega = np.exp( - 2 * np.pi * 1J / n )
     W = np.ones((n,n), dtype=complex)
