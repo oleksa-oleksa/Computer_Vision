@@ -1,3 +1,6 @@
+import scipy.fftpack as fftpack
+import numpy as np
+
 class ChromaSubsampling:
     """See https://en.wikipedia.org/wiki/YCbCr."""
     ycbcr = np.array([
@@ -55,3 +58,19 @@ class ChromaSubsampling:
         np.putmask(rgb_img, rgb_img > 255, 255)
         np.putmask(rgb_img, rgb_img < 0, 0)
         return np.uint8(rgb_img)
+
+
+#------------------------------
+class DCTofBlocks:
+    def __call__(self, blocks):
+        """Returns the DCT of the blocks. The position (i, j) is a 2-dim numpy array with the dct coefficents."""
+        # you can use any function from np.fft or scipy.fftpack
+        # your code here
+        # Return multidimensional Discrete Cosine Transform along the specified axes.
+        return fftpack.dctn(blocks, norm='ortho')
+    
+    def invert(self, blocks):
+        """Computes the inverse DCT."""
+        # you can use any function from np.fft or scipy.fftpack
+        # your code here
+        return fftpack.idctn(blocks, norm='ortho')
