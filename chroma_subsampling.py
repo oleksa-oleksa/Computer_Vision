@@ -27,7 +27,31 @@ class ChromaSubsampling:
         # y, cb, cr
         return sub_img[:, :, 0], sub_img[:, :, 1], sub_img[:, :, 2]
     
-    def invert(self, inputs):
+     def invert(self, inputs):
         y, cb, cr = inputs
+        # debug
+        #print(y.shape)
+        
         # your code here
-        return np.stack([y, cb, cr], axis=-1)
+        rgb_matrix = np.array([
+            [1, 0, 1.402], 
+            [1, -0.34414, -0.71414], 
+            [1, 1.772, 0]
+        ])
+        shape = (y.shape[0], y.shape[1], 3)
+        rgb_img = np.zeros(shape, dtype=np.double)
+        print(rgb_img.shape)
+        rgb_img[:,:,0] = y
+        rgb_img[:,:,1] = cb
+        rgb_img[:,:,2] = cr
+
+        rgb_img[:,:, [1,2]] -= 128
+
+        rgb_img = np.dot(rgb_matrix, rgb_img.reshape(-1, 3).T)
+        rgb_img = rgb_img.T.reshape(shape)
+        rgb_img[:,:, 0] = y + rgb_img[:,:, 0]
+        rgb_img[:,:, 1] = y - rgb_img[:,:, 1]
+        rgb_img[:,:, 2] = y + rgb_img[:,:, 2]
+
+
+        return rgb_img
