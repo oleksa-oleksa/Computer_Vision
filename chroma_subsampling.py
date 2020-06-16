@@ -38,9 +38,10 @@ class ChromaSubsampling:
             [1, -0.34414, -0.71414], 
             [1, 1.772, 0]
         ])
+
         shape = (y.shape[0], y.shape[1], 3)
         rgb_img = np.zeros(shape, dtype=np.double)
-        '''
+        
         print(rgb_img.shape)
         rgb_img[:,:,0] = y
         rgb_img[:,:,1] = cb
@@ -48,11 +49,7 @@ class ChromaSubsampling:
 
         rgb_img[:,:, [1,2]] -= 128
 
-        rgb_img = np.dot(rgb_matrix, rgb_img.reshape(-1, 3).T)
-        rgb_img = rgb_img.T.reshape(shape)
-        rgb_img[:,:, 0] = y + rgb_img[:,:, 0]
-        rgb_img[:,:, 1] = y - rgb_img[:,:, 1]
-        rgb_img[:,:, 2] = y + rgb_img[:,:, 2]
+        rgb_img = rgb_img.dot(rgb_matrix.T)
         '''
         cb_mod = cb - 128
         cr_mod = cr - 128
@@ -63,5 +60,7 @@ class ChromaSubsampling:
         rgb_img[:,:,0] = r
         rgb_img[:,:,1] = g
         rgb_img[:,:,2] = b
-
-        return rgb_img
+        '''
+        np.putmask(rgb_img, rgb_img > 255, 255)
+        np.putmask(rgb_img, rgb_img < 0, 0)
+        return np.uint8(rgb_img)
