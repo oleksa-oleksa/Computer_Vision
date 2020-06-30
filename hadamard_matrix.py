@@ -22,14 +22,25 @@ def hadamard_matrix(n):
         print("ValueError: n must be an positive integer, and n must be a power of 2")
         return
 
+    H = np.array((n, n))
+
+    # Initialize Hadamard matrix of order 1.
     H1 = 1
-    H_total = np.zeros((n, n))
-    for i in range(n):
-        for x in range(2):
-            for y in range(2):
-                
+    k = 2
+    H_tmp = np.array((k, k))
     
-    return scipy.linalg.hadamard(n) / np.sqrt(n)
+    while k < n:
+        H_tmp = np.array((k, k))
+        for x in range(0, k, k//2):
+            for y in range(0, k, k//2):
+                H[x:k, y:k] = H1
+        H[k-1, k-1] = np.negative(H1)
+        H1 = H_tmp
+        k = k * 2
+
+    return H
+    
+    #return scipy.linalg.hadamard(n) / np.sqrt(n)
 
 plt.subplot(121)
 plt.imshow(hadamard_matrix(2), cmap='gray')
